@@ -8,7 +8,7 @@ parser.add_argument('--token', required=True,
                     '(see https://www.dropbox.com/developers/apps)')
 args = parser.parse_args()
 
-for ii in range(10000):
+while True:
   fields_to_save = [4,6,7,11,14,15]
   call_signs = {}
   dt_now = datetime.now()
