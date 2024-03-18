@@ -4,3 +4,4 @@ newlogs/*.txt
 secrets/*.txt
 outbox/*.*
 sent/*.*
+*.pyc
