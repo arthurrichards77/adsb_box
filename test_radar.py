@@ -15,4 +15,4 @@ for ii in range(10000):
         print(test_data)
         #time.sleep(0.00001)
     except KeyboardInterrupt:
-        pass
+        break
