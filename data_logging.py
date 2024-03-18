@@ -3,7 +3,6 @@ including splitting
 and timestamping files and entries"""
 from datetime import datetime
 from argparse import ArgumentParser
-from sys import stdin
 
 class DataLog:
     """
@@ -45,7 +44,7 @@ class DataLog:
                 self._refresh_file()
         time_stamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')
         log_line = f'{time_stamp},{text.strip()}\n'
-        print(log_line)
+        #print(log_line)
         self.file_handle.write(log_line)
         self.entry_count += 1
 
@@ -61,9 +60,12 @@ def enter_hourly_log(text,file_stub):
 
 def stream_stdin_to_log(file_stub,max_entries=10000):
     data_log = DataLog(file_stub=file_stub,max_entries=max_entries)
-    for line in stdin:
-        data_log.log_entry(line)
-        print(line)
+    try:
+        while True:
+            line = input()
+            data_log.log_entry(line)
+    except EOFError:
+        pass
 
 def main():
     parser = ArgumentParser(description = 'Log text with timestamps')
