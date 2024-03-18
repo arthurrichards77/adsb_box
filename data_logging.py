@@ -44,7 +44,9 @@ class DataLog:
             if self.entry_count==self.max_entries:
                 self._refresh_file()
         time_stamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')
-        self.file_handle.write(f'{time_stamp},{text.strip()}\n')
+        log_line = f'{time_stamp},{text.strip()}\n'
+        print(log_line)
+        self.file_handle.write(log_line)
         self.entry_count += 1
 
 def enter_daily_log(text,file_stub):
@@ -61,6 +63,7 @@ def stream_stdin_to_log(file_stub,max_entries=10000):
     data_log = DataLog(file_stub=file_stub,max_entries=max_entries)
     for line in stdin:
         data_log.log_entry(line)
+        print(line)
 
 def main():
     parser = ArgumentParser(description = 'Log text with timestamps')
@@ -68,7 +71,7 @@ def main():
                         default='newlogs/log')
     parser.add_argument('-d','--daily',help='Text to add to daily log')
     parser.add_argument('-u','--hourly',help='Text to add to hourly log')
-    parser.add_argument('-s','--stream',help='Stream from standard input to a running log'
+    parser.add_argument('-s','--stream',help='Stream from standard input to a running log',
                         action='store_true',default=False)
     args = parser.parse_args()
     if args.daily:

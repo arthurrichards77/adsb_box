@@ -1,1 +1,0 @@
-python .\dropbox_upload.py --token $(cat token.txt) --file test_data.txt

@@ -1,3 +1,6 @@
 token.txt
 *.csv
 newlogs/*.txt
+secrets/*.txt
+outbox/*.*
+sent/*.*
