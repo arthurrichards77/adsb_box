@@ -68,7 +68,8 @@ def main():
                         default='newlogs/log')
     parser.add_argument('-d','--daily',help='Text to add to daily log')
     parser.add_argument('-u','--hourly',help='Text to add to hourly log')
-    parser.add_argument('-s','--stream',action='store_true',default=False)
+    parser.add_argument('-s','--stream',help='Stream from standard input to a running log'
+                        action='store_true',default=False)
     args = parser.parse_args()
     if args.daily:
         enter_daily_log(args.daily, args.file_stub)
