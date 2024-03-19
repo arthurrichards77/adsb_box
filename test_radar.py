@@ -1,4 +1,7 @@
 import time
+import socket
+import argparse
+
 test_data = """MSG,3,1,22745,4841A9,22745,2023/8/24,15:49:17.469,2023/8/24,15:49:17.469,,38000,,,50.40327,-1.06381,,,0,0,0,0
 MSG,1,1,22709,48520A,22709,2023/8/24,15:49:17.525,2023/8/24,15:49:17.525,TRA26W,,,,,,,,,,,
 MSG,3,1,22738,A255DD,22738,2023/8/24,15:49:17.532,2023/8/24,15:49:17.532,,23975,,,50.81363,-0.45813,,,0,1,0,0
@@ -24,10 +27,52 @@ MSG,3,1,22745,4841A9,22745,2023/8/24,15:49:17.969,2023/8/24,15:49:17.969,,38000,
 test_msgs = test_data.split("\n")
 #print(test_msgs)
 #exit()
+
+parser = argparse.ArgumentParser(description='Simulator for RadarCape Port 30003 data.  If port given, will wait for connection and serve via socket.  Otherwise will just print.')
+parser.add_argument('-p','--port',type=int,
+                    help='Port number to serve data on.')
+parser.add_argument('-i','--ipaddr',default='127.0.0.1',
+                    help='IP address of interface to serve data on.')
+args = parser.parse_args()
+
+s = None
+conn = None
+if args.port:
+    print(f'Listening on {args.ipaddr}:{args.port}')
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((args.ipaddr, args.port))
+    s.listen()
+    s.settimeout(2)
+
 for ii in range(10000):
+    if args.port:
+        if not conn:
+            try:
+                print('Waiting for connection')
+                conn, addr = s.accept()
+                print(f"Connected by {addr}")
+            except TimeoutError:
+                conn = None
+                continue
     try:
         for m in test_msgs:
-            print(m.strip())
-            # time.sleep(0.01) # for some reason this stops the pipe from working
+            if conn:
+                conn.sendall(m.encode())
+                time.sleep(0.01) # has happy effect of flushing the socket
+            else:
+                print(m.strip())
+                # time.sleep(0.01) # for some reason this stops the pipe from working
     except KeyboardInterrupt:
         break
+    except ConnectionAbortedError:
+        print("Lost client connection")
+        conn = None
+        pass
+
+if conn:
+    print('Closing connection')
+    conn.close()
+
+if s:
+    print('Closing server')
+    s.close()
