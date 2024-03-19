@@ -44,7 +44,7 @@ class DataLog:
                 self._refresh_file()
         time_stamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')
         log_line = f'{time_stamp},{text.strip()}\n'
-        #print(log_line)
+        print(log_line)
         self.file_handle.write(log_line)
         self.entry_count += 1
 
