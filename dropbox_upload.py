@@ -45,53 +45,43 @@ def upload_file(file_name):
             res_name = res.name.encode('utf8')
             enter_daily_log(f'Uploaded {full_local_path} as {res_name}','newlogs/log')
 
-def _move_files_to_outbox(file_spec, outbox_path):
+def upload_and_move_files(file_spec, dest_path=None, upload=True):
+    if dest_path:
+        assert path.isdir(dest_path)
     file_list = glob(file_spec)
     for f in file_list:
+        #print(f)
         if path.isfile(f):
-            new_path = path.join(outbox_path,
-                                 path.basename(f))
-            enter_daily_log(f'Moving {path.abspath(f)} to {path.abspath(new_path)}',
-                            'newlogs/log')
-            try:
-                replace(f,new_path)
-            except PermissionError:
-                enter_daily_log(f'Unable to move {path.abspath(f)}',
+            if upload:
+                try:
+                    #print(f)
+                    upload_file(f)
+                except dropbox.exceptions.ApiError:
+                    enter_daily_log(f'ApiError uploading {f}',
+                                    'newlogs/log')
+                    continue
+            if dest_path:
+                new_path = path.join(dest_path,
+                                    path.basename(f))
+                enter_daily_log(f'Moving {path.abspath(f)} to {path.abspath(new_path)}',
                                 'newlogs/log')
-                
-def _upload_outbox(outbox_path, sent_path):
-    outbox_list = listdir(outbox_path)
-    #print(outbox_list)
-    for f in outbox_list:
-        if f=='README.md':
-            continue
-        full_path = path.join(outbox_path,f)
-        #print(full_path)
-        if path.isfile(full_path):
-            try:
-                upload_file(full_path)
-                new_path = path.join(sent_path,path.basename(full_path))
-                #print(full_path)
-                #print(new_path)
-                replace(full_path,new_path)
-            except dropbox.exceptions.ApiError:
-                enter_daily_log(f'Problem uploading {path.abspath(full_path)}',
-                                'newlogs/log')
-                continue
-
-def upload_batch(file_spec, outbox_path = 'outbox', sent_path='sent'):
-    _move_files_to_outbox(file_spec,outbox_path)
-    _upload_outbox(outbox_path,sent_path)
+                try:
+                    replace(f,new_path)
+                except PermissionError:
+                    enter_daily_log(f'Unable to move {path.abspath(f)}',
+                                    'newlogs/log')
 
 def main():
     parser = ArgumentParser(description = 'Upload utilities for dropbox')
-    parser.add_argument('-b','--batch',help='Batch of files to upload')
-    parser.add_argument('-u','--upload',help='File to upload')
+    parser.add_argument('-u','--upload',help='Files to upload')
+    parser.add_argument('-q','--queue',help='Files to queue for uploading.')
+    parser.add_argument('-d','--dest',help='Destination folder for queueing or after uploading')
     args = parser.parse_args()
-    if args.upload:
-        upload_file(args.upload)
-    elif args.batch:
-        upload_batch(args.batch)
+    if args.queue:
+        assert args.dest is not None
+        upload_and_move_files(args.queue,args.dest,upload=False)
+    elif args.upload:
+        upload_and_move_files(args.upload,args.dest,upload=True)
     else:
         authorize()
 

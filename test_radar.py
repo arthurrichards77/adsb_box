@@ -27,7 +27,7 @@ test_msgs = test_data.split("\n")
 for ii in range(10000):
     try:
         for m in test_msgs:
-            print(m.strip()+"\r\n")
+            print(m.strip())
             # time.sleep(0.01) # for some reason this stops the pipe from working
     except KeyboardInterrupt:
         break
