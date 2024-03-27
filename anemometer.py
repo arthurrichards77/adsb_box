@@ -1,6 +1,7 @@
 """Driver and data recorder for the 4-20mA anemometer"""
 from data_logging import enter_hourly_log
 from argparse import ArgumentParser
+from click_4_20ma import get_click_current
 
 class Anemometer:
 
@@ -8,8 +9,12 @@ class Anemometer:
         pass
 
     def get_wind_speed(self):
-        # fake for now
-        return 24.2
+        current = get_click_current()
+        if current<3.8:
+            return -1.0
+        if current>20.2:
+            return -1.0
+        return 50.0*(current-4.0)/16.0
     
     def get_gps_position(self):
         # fake for now
