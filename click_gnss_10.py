@@ -19,10 +19,14 @@ def get_gps_position_time():
     for _ in range(50):
         rcv = port.readline().decode('utf-8')
         if rcv.startswith('$GNGLL'):
-            #print(rcv)
+            print(rcv)
             fields = rcv.split(',')
-            lat = degmin_to_decdeg(float(fields[1]),fields[2])
-            lon = degmin_to_decdeg(float(fields[3]),fields[4])
+            try:
+                lat = degmin_to_decdeg(float(fields[1]),fields[2])
+                lon = degmin_to_decdeg(float(fields[3]),fields[4])
+            except ValueError:
+                lat = None
+                lon = None
             gps_time = decode_time_str(fields[5])
             break
     return lat,lon,gps_time
@@ -33,10 +37,15 @@ def main():
     while True:
         rcv = port.readline().decode('utf-8')
         if rcv.startswith('$GNGLL'):
+            print(rcv)
             fields = rcv.split(',')
             print(fields)
-            lat = degmin_to_decdeg(float(fields[1]),fields[2])
-            lon = degmin_to_decdeg(float(fields[3]),fields[4])
+            try:
+                lat = degmin_to_decdeg(float(fields[1]),fields[2])
+                lon = degmin_to_decdeg(float(fields[3]),fields[4])
+            except ValueError:
+                lat = None
+                lon = None
             print(lat,lon)
             gps_time = decode_time_str(fields[5])
             print(gps_time)
