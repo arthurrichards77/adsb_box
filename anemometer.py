@@ -2,6 +2,7 @@
 from data_logging import enter_hourly_log
 from argparse import ArgumentParser
 from click_4_20ma import get_click_current
+from click_gnss_10 import get_gps_position_time
 
 class Anemometer:
 
@@ -17,15 +18,15 @@ class Anemometer:
         return 50.0*(current-4.0)/16.0
     
     def get_gps_position(self):
-        # fake for now
-        return 51.47951494978535, -2.6046225943885166
+        lat,lon,gps_time = get_gps_position_time()
+        return lat, lon, gps_time
     
     def log_wind(self,file_stub):
         enter_hourly_log(f'WND,{self.get_wind_speed()}',file_stub)
 
     def log_gps(self,file_stub):
-        lat,lon = self.get_gps_position()
-        enter_hourly_log(f'GPS,{lat},{lon}',file_stub)
+        lat,lon,gps_time = self.get_gps_position()
+        enter_hourly_log(f'GPS,{lat},{lon},{gps_time}',file_stub)
 
 def main():
     parser = ArgumentParser(description='Get wind speed and position data from the anemometer and associated GPS')

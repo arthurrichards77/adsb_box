@@ -15,18 +15,18 @@ def decode_time_str(time_str):
 
 def get_gps_position_time():
     port = serial.Serial("/dev/ttyACM0", baudrate=115200, timeout=3.0)
-    for _ in range(20):
+    lat,lon,gps_time = None,None,None
+    for _ in range(50):
         rcv = port.readline().decode('utf-8')
         if rcv.startswith('$GNGLL'):
+            #print(rcv)
             fields = rcv.split(',')
-            print(fields)
             lat = degmin_to_decdeg(float(fields[1]),fields[2])
             lon = degmin_to_decdeg(float(fields[3]),fields[4])
-            print(lat,lon)
             gps_time = decode_time_str(fields[5])
-            print(gps_time)
+            break
+    return lat,lon,gps_time
     
-
 def main():
     # access the GPS click using its USB port
     port = serial.Serial("/dev/ttyACM0", baudrate=115200, timeout=3.0)
