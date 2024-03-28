@@ -11,10 +11,6 @@ class Anemometer:
 
     def get_wind_speed(self):
         current = get_click_current()
-        if current<3.8:
-            return -1.0
-        if current>20.2:
-            return -1.0
         return 50.0*(current-4.0)/16.0
     
     def get_gps_position(self):
