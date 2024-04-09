@@ -3,9 +3,16 @@
 // for Raspberry Pi, implemented on a Trinket
 // companion microcontroller
 //
-// When I2C commands, power is shut off
-// requested period.
+// When I2C commands, wait for a time, then 
+// the power is shut off for requested period.
 //
+// I2C should send three bytes:
+//  1 is time-off delay
+//  2 and 3 are time-on delay
+// Units are five second increments
+//
+
+#include <Wire.h>
 
 // global counter variables for sleep timing
 byte off_ctr = 0;
@@ -54,6 +61,17 @@ void setup() {
   off_ctr = 0;
   on_ctr = 0;
   digitalWrite(PWR_PIN, HIGH);
+  // initialize the I2C
+  Wire.begin(4);
+  Wire.onReceive(i2c_recv);
+}
+
+void i2c_recv(int how_many){
+  off_ctr = Wire.read();
+  unsigned int on_tmp = Wire.read();
+  on_tmp << 8;
+  on_tmp |= Wire.read();
+  on_ctr = on_tmp;
 }
 
 void loop() {
