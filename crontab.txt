@@ -22,9 +22,9 @@
 # 
 # m h  dom mon dow   command
 
-*/5 * * * * cd /home/pi/adsb_box; python3 anemometer.py -w newlogs/piwindtest >> mycron.log 2>&1
+0-50/5 8-18 * * * cd /home/pi/adsb_box; python3 anemometer.py -w newlogs/windbox >> mycron.log 2>&1; python3 snooze.py 2 44 >> mycron.log 2>&1 && sudo /usr/sbin/poweroff >> mycron.log 2>&1
 
-12 * * * * cd /home/pi/adsb_box; python3 anemometer.py -p newlogs/piwindtest >> mycron.log 2>&1
+55 8-18 * * * cd /home/pi/adsb_box; python3 anemometer.py -w newlogs/windbox -p newlogs/windbox >> mycron.log 2>&1 ; python3 dropbox_upload.py -u "newlogs/windbox*.txt" -d sent/ >> mycron.log 2>&1
 
-57 * * * * cd /home/pi/adsb_box; python3 dropbox_upload.py -u "newlogs/piwindtest*.txt" -d sent/ >> mycron.log 2>&1
+0 19 * * * cd /home/pi/adsb_box; python3 dropbox_upload.py -u "newlogs/*.txt" -d sent/ >> mycron.log 2>&1; python3 snooze.py 12 8640 >> mycron.log 2>&1; sudo /usr/sbin/poweroff >> mycron.log 2>&1
 
