@@ -41,7 +41,8 @@ def upload_file(file_name):
         with open(file_name,'rb') as f:
             data = f.read()
             res = dbx.files_upload(data,
-                                   target_name)
+                                   target_name,
+                                   autorename=True)
             res_name = res.name.encode('utf8')
             enter_daily_log(f'Uploaded {full_local_path} as {res_name}','newlogs/log')
 
