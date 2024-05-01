@@ -24,5 +24,8 @@ print(f'Back on at {on_time}')
 enter_daily_log(f'Snooze {off_delay} {snooze_time}','newlogs/log')
 
 bus = SMBus(i2c_bus)
-bus.write_block_data(i2c_dev,off_delay,[snooze_time])
+high_byte = snooze_time >> 8
+low_byte = snooze_time & 255
+# will write four bytes: device, off_delay, 2 (for 2 bytes coming), high_byte, low_byte
+bus.write_block_data(i2c_dev,off_delay,[high_byte, low_byte])
 bus.close()
