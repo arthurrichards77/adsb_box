@@ -14,6 +14,9 @@
 
 #include <Wire.h>
 
+#include <Adafruit_DotStar.h>
+Adafruit_DotStar strip = Adafruit_DotStar(1,7,8, DOTSTAR_BGR);
+
 // global counter variables for sleep timing
 byte off_ctr = 0;
 unsigned int on_ctr = 0;
@@ -22,40 +25,45 @@ unsigned int on_ctr = 0;
 
 #define LED_PIN 13
 
-#define DELAY_TIME 500
+#define BLINK_TIME 250
+#define BLINKS_PER_CYC 20
 
 void fast_blink_delay(){
   int ii;
-  for (ii=0;ii<5;ii++){
+  for (ii=0;ii<BLINKS_PER_CYC;ii+=2){
     digitalWrite(LED_PIN,HIGH);
-    delay(DELAY_TIME);
+    delay(BLINK_TIME);
     digitalWrite(LED_PIN,LOW);
-    delay(DELAY_TIME);
+    delay(BLINK_TIME);
   }
 }
 
 void slow_blink_delay(){
   int ii;
   digitalWrite(LED_PIN,HIGH);
-  delay(DELAY_TIME);
+  delay(BLINK_TIME);
   digitalWrite(LED_PIN,LOW);
-  for (ii=0;ii<9;ii++){
-    delay(DELAY_TIME);
+  for (ii=1;ii<BLINKS_PER_CYC;ii++){
+    delay(BLINK_TIME);
   }
 }
 
 void led_on_delay(){
   int ii;
+  digitalWrite(LED_PIN,LOW);
+  delay(BLINK_TIME);
   digitalWrite(LED_PIN,HIGH);
-  for (ii=0;ii<10;ii++){
-    delay(DELAY_TIME);
+  for (ii=1;ii<BLINKS_PER_CYC;ii++){
+    delay(BLINK_TIME);
   }
 }
 
-#define PWR_PIN 2
+#define PWR_PIN 3
 
 void setup() {
-  // put your setup code here, to run once:
+  // turn off dotstar
+  strip.show();
+  // set up digital outputs
   pinMode(LED_PIN, OUTPUT);
   pinMode(PWR_PIN, OUTPUT);
   off_ctr = 0;
@@ -64,18 +72,46 @@ void setup() {
   // initialize the I2C
   Wire.begin(4);
   Wire.onReceive(i2c_recv);
+  // serial debugging
+  Serial.begin(9600);
 }
 
 void i2c_recv(int how_many){
-  off_ctr = Wire.read();
-  unsigned int on_tmp = Wire.read();
-  on_tmp << 8;
-  on_tmp |= Wire.read();
-  on_ctr = on_tmp;
+  Serial.printf("Got %d bytes\n", how_many);
+  if (how_many==4) {
+    off_ctr = Wire.read();
+    // will discard next byte - now many bytes coming
+    unsigned int on_tmp = Wire.read();
+    //assert(on_tmp==2);
+    // now the two byte off timer value, high then low
+    on_tmp = Wire.read();
+    on_tmp = on_tmp << 8;
+    on_tmp |= Wire.read();
+    if (on_tmp>255) {
+      strip.setPixelColor(0,0x0000FF);
+    }
+    else {
+      strip.setPixelColor(0,0x00FF00);
+    }
+    on_ctr = on_tmp;
+  }
+  else {
+    strip.setPixelColor(0,0xFF0000);
+    for (int ii=0;ii<how_many;ii++) {
+      Serial.printf("%d ", Wire.read());
+    }
+    Serial.printf("\n");
+  }
+  strip.show();
+  delay(100);
+  strip.setPixelColor(0,0);
+  strip.show();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // debug output
+  Serial.printf("off_ctr %d on_ctr %d \n",off_ctr,on_ctr);
+  // timer logic
   if (off_ctr>0) {
     // waiting to shutdown
     off_ctr--;
