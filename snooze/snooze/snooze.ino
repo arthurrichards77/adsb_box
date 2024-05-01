@@ -14,6 +14,9 @@
 
 #include <Wire.h>
 
+#include <Adafruit_DotStar.h>
+Adafruit_DotStar strip = Adafruit_DotStar(1,7,8, DOTSTAR_BGR);
+
 // global counter variables for sleep timing
 byte off_ctr = 0;
 unsigned int on_ctr = 0;
@@ -58,7 +61,9 @@ void led_on_delay(){
 #define PWR_PIN 3
 
 void setup() {
-  // put your setup code here, to run once:
+  // turn off dotstar
+  strip.show();
+  // set up digital outputs
   pinMode(LED_PIN, OUTPUT);
   pinMode(PWR_PIN, OUTPUT);
   off_ctr = 0;
@@ -72,7 +77,6 @@ void setup() {
 }
 
 void i2c_recv(int how_many){
-  int ii;
   Serial.printf("Got %d bytes\n", how_many);
   if (how_many==4) {
     off_ctr = Wire.read();
@@ -83,14 +87,25 @@ void i2c_recv(int how_many){
     on_tmp = Wire.read();
     on_tmp = on_tmp << 8;
     on_tmp |= Wire.read();
+    if (on_tmp>255) {
+      strip.setPixelColor(0,0x0000FF);
+    }
+    else {
+      strip.setPixelColor(0,0x00FF00);
+    }
     on_ctr = on_tmp;
   }
   else {
-    for (ii=0;ii<how_many;ii++) {
+    strip.setPixelColor(0,0xFF0000);
+    for (int ii=0;ii<how_many;ii++) {
       Serial.printf("%d ", Wire.read());
     }
+    Serial.printf("\n");
   }
-  Serial.printf("\n");
+  strip.show();
+  delay(100);
+  strip.setPixelColor(0,0);
+  strip.show();
 }
 
 void loop() {
