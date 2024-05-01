@@ -56,7 +56,8 @@ def upload_and_move_files(file_spec, dest_path=None, upload=True):
                 try:
                     #print(f)
                     upload_file(f)
-                except dropbox.exceptions.ApiError:
+                except dropbox.exceptions.ApiError as e:
+                    print(f'API error {e}')
                     enter_daily_log(f'ApiError uploading {f}',
                                     'newlogs/log')
                     continue
