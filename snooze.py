@@ -21,7 +21,7 @@ off_time = datetime.now()+timedelta(seconds=5*off_delay)
 on_time = off_time + timedelta(seconds=5*snooze_time)
 print(f'Off at {off_time}')
 print(f'Back on at {on_time}')
-enter_daily_log(f'Snooze {off_delay} {snooze_time}','newlogs/log')
+enter_daily_log(f'Snooze {off_delay} {snooze_time} back at {on_time}','newlogs/log')
 
 bus = SMBus(i2c_bus)
 high_byte = snooze_time >> 8
