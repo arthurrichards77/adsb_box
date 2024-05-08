@@ -30,10 +30,10 @@ def main():
     parser.add_argument('-p','--pos',help='Log file for position measurement')
     args = parser.parse_args()
     anmtr = Anemometer()
-    if args.wind:
-        anmtr.log_wind(args.wind)
     if args.pos:
         anmtr.log_gps(args.pos)
+    if args.wind:
+        anmtr.log_wind(args.wind)
 
 if __name__=='__main__':
     main()
