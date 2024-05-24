@@ -1,4 +1,5 @@
 import sys
+import time
 from datetime import datetime,timedelta
 from smbus import SMBus
 from data_logging import enter_daily_log
@@ -27,5 +28,12 @@ bus = SMBus(i2c_bus)
 high_byte = snooze_time >> 8
 low_byte = snooze_time & 255
 # will write four bytes: device, off_delay, 2 (for 2 bytes coming), high_byte, low_byte
-bus.write_block_data(i2c_dev,off_delay,[high_byte, low_byte])
+for attempt in range(10):
+    try:
+        bus.write_block_data(i2c_dev,off_delay,[high_byte, low_byte])
+    except OSError:
+        enter_daily_log(f'Snooze encountered OSError','newlogs/log')
+        time.sleep(2)
+    else:
+        enter_daily_log(f'Snooze OK','newlogs/log')
 bus.close()
