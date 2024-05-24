@@ -31,8 +31,8 @@ low_byte = snooze_time & 255
 for attempt in range(10):
     try:
         bus.write_block_data(i2c_dev,off_delay,[high_byte, low_byte])
-    except OSError:
-        enter_daily_log(f'Snooze encountered OSError','newlogs/log')
+    except OSError as e:
+        enter_daily_log(f'Snooze encountered OSError {e}','newlogs/log')
         time.sleep(2)
     else:
         enter_daily_log(f'Snooze OK','newlogs/log')
