@@ -22,11 +22,14 @@
 # 
 # m h  dom mon dow   command
 
+# if awake early, log windspeed, and sleep for an hour
+0-55/5 0-7 * * *  cd /home/pi/adsb_box; python3 anemometer.py -w newlogs/windbox >> mycron.log 2>&1; python3 snooze.py 2 720 >> mycron.log 2>&1 && sudo /usr/sbin/poweroff >> mycron.log 2>&1
+
 # every five minutes (except *:55) log the wind speed, then sleep for 4 minutes
-0-50/5 0-15 * * * cd /home/pi/adsb_box; python3 anemometer.py -w newlogs/windbox >> mycron.log 2>&1; python3 snooze.py 2 44 >> mycron.log 2>&1 && sudo /usr/sbin/poweroff >> mycron.log 2>&1
+0-50/5 8-15 * * * cd /home/pi/adsb_box; python3 anemometer.py -w newlogs/windbox >> mycron.log 2>&1; python3 snooze.py 2 44 >> mycron.log 2>&1 && sudo /usr/sbin/poweroff >> mycron.log 2>&1
 
 # every hour, while wifi on, log windspeed, position, and upload all the wind logs; don't snooze on this one in case it takes a while
 55 5-15 * * * cd /home/pi/adsb_box; python3 anemometer.py -w newlogs/windbox -p newlogs/windbox >> mycron.log 2>&1 ; python3 dropbox_upload.py -u "newlogs/windbox*.txt" -d sent/ >> mycron.log 2>&1
 
-# at 4pm every day, upload all outstanding logs; then sleep overnight
-0 16 * * * cd /home/pi/adsb_box; python3 dropbox_upload.py -u "newlogs/*.txt" -d sent/ >> mycron.log 2>&1; python3 snooze.py 12 11520 >> mycron.log 2>&1; sudo /usr/sbin/poweroff >> mycron.log 2>&1
+# after 4pm every day, upload all outstanding logs; then sleep overnight
+0-55/5 16-23 * * * cd /home/pi/adsb_box; python3 dropbox_upload.py -u "newlogs/*.txt" -d sent/ >> mycron.log 2>&1; python3 snooze.py 12 11520 >> mycron.log 2>&1; sudo /usr/sbin/poweroff >> mycron.log 2>&1
