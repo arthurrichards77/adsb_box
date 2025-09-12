@@ -6,3 +6,4 @@ outbox/*.*
 sent/*.*
 *.pyc
 *.log
+opensky_settings.conf
